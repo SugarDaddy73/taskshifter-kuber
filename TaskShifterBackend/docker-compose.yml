@@ -1,0 +1,38 @@
+﻿services:
+  db:
+    container_name: taskshifter.postgres
+    image: postgres:16
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: taskshifter
+    networks:
+      - taskshifter
+  backend:
+    container_name: taskshifter.backend
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=taskshifter.postgres
+      - DB_NAME=taskshifter
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+    ports:
+      - 7700:7700
+    depends_on:
+      - db
+    networks:
+      - taskshifter
+
+networks:
+  taskshifter:
+    driver: bridge
+
+volumes:
+  db_data:
+  attachments:
